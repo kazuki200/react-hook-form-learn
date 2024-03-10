@@ -2,23 +2,34 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 
 const page = () => {
+  enum GenderEnum {
+    female = "female",
+    male = "male",
+    other = "other",
+  }
+
   type Inputs = {
     nameSei: string;
     nameMei: string;
-    postalCode: string;
-    address: string;
-    phone: string;
+    gender: GenderEnum;
+    age: number;
   };
 
   const {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors },
-  } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  } = useForm<Inputs>({
+    defaultValues: {
+      nameSei: "苗字",
+      nameMei: "名前",
+      age: 18,
+    },
+  });
 
-  console.log(watch("nameSei"));
+  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
 
   return (
     <section className="max-w-3xl mx-auto py-20">
@@ -34,20 +45,32 @@ const page = () => {
         {errors.nameSei && <span>姓が未入力です</span>}
         <div className="form-wrapper">
           <label htmlFor="nameMei">名</label>
-          <input className="w-60" type="text" {...register("nameMei")} />
+          <input
+            className="w-60"
+            type="text"
+            {...register("nameMei", { required: true })}
+          />
+        </div>
+        {errors.nameMei && <span>名が未入力です</span>}
+        <div className="form-wrapper">
+          <select {...register("gender")}>
+            <option value="female">女性</option>
+            <option value="male">男性</option>
+            <option value="other">その他</option>
+          </select>
         </div>
         <div className="form-wrapper">
-          <label htmlFor="postalCode">郵便番号</label>
-          <input type="text" id="postalCode" {...register("postalCode")} />
+          <input
+            type="number"
+            {...register("age", {
+              required: "年齢を入力してください",
+              min: { value: 18, message: "18歳未満は入力できません" },
+              max: 99,
+            })}
+          />
         </div>
-        <div className="form-wrapper">
-          <label htmlFor="address">住所</label>
-          <input type="text" id="address" {...register("address")} />
-        </div>
-        <div className="form-wrapper">
-          <label htmlFor="phone">電話番号</label>
-          <input type="phone" id="phone" {...register("phone")} />
-        </div>
+        {errors.age && errors.age.message}
+
         <input type="submit" value="送信" />
       </form>
     </section>
